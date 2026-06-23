@@ -1,0 +1,31 @@
+name: Life Shortcut Auto Bot
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'  # 4시간마다 찔러보기 (실제 발행은 파이썬 내부 1시간 락이 통제)
+  workflow_dispatch:      # ★수동 트리거 버튼(Run workflow)을 화면에 생성하는 마법의 코드!
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install required libraries
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-genai google-api-python-client google-auth-httplib2 google-auth-oauthlib Pillow requests
+
+      - name: Run Auto Post Script
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+          TOKEN_PICKLE_BASE64: ${{ secrets.TOKEN_PICKLE_BASE64 }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python auto-post.py
