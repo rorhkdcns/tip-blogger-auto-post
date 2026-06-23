@@ -301,11 +301,12 @@ def main():
     
     try:
         posts = blogger.posts().list(blogId=BLOG_ID, maxResults=1).execute()
+      # ✅ 변경 코드 ('return' 앞에 #을 붙여서 락을 일시 무력화!)
         if posts.get('items'):
             last_pub_time = datetime.datetime.fromisoformat(posts['items'][0].get('published', '').replace('Z', '+00:00')).astimezone(kst)
             if (datetime.datetime.now(kst) - last_pub_time).total_seconds() < 3600:
                 print("⏳ 1시간 이내 연속 발행 방지 락 작동 중.")
-                return 
+                # return   # 🌟 앞에 샵(#)을 붙여서 이 줄을 그냥 주석(메모)처리 합니다!
     except: pass
     
     target_keyword = get_unique_life_keyword()
