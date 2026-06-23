@@ -157,10 +157,14 @@ def create_and_upload_thumbnail(title_text):
     payload = {"message": f"Auto-thumbnail: {file_name}", "content": encoded_content, "branch": "main"}
     if sha: payload["sha"] = sha
     
-    res_put = requests.put(url, headers=headers, json=payload)
+  res_put = requests.put(url, headers=headers, json=payload)
     if res_put.status_code in [200, 201]:
         print(f"🎨 썸네일 간판 깃허브 업로드 성공! ({file_name})")
         return f"https://cdn.jsdelivr.net/gh/{GITHUB_USER_ID}/{GITHUB_REPO_NAME}@main/{git_path}"
+    else:
+        # 🌟 [이 부분 수정] 왜 실패했는지 검은 화면에 에러 사유를 뱉어내도록 변경!
+        print(f"❌ [썸네일 업로드 실패] 코드: {res_put.status_code}, 사유: {res_put.text}")
+        
     return ""
 
 # =====================================================================
