@@ -111,22 +111,19 @@ def create_and_upload_thumbnail(title_text):
         try: urllib.request.urlretrieve(font_url, font_path)
         except: pass
 
-    # 📐 [정사각형 변환] 1200x630 규격을 스마트폰 최적화 800x800 정방형으로 체인지!
+    # 📐 800x800 정방형 도화지 준비
     img = Image.new('RGB', (800, 800), color='#0f172a')
     draw = ImageDraw.Draw(img)
     
     try:
-        title_font = ImageFont.truetype(font_path, 52) # 정사각형 매칭 폰트 크기 밸런스 조정
-        badge_font = ImageFont.truetype(font_path, 26)
+        # 🔎 [디자인 업그레이드] 제목이 화면에 시원하게 꽉 차도록 폰트 크기를 58로 대폭 키웁니다!
+        title_font = ImageFont.truetype(font_path, 58)
     except:
         title_font = ImageFont.load_default()
-        badge_font = ImageFont.load_default()
 
-    # 카테고리 뱃지 재배치 (좌측 여백 60 규격으로 통일)
-    draw.rounded_rectangle([(60, 60), (330, 115)], radius=8, fill="#2563eb")
-    draw.text((85, 72), "IT / 트러블슈팅 💡", fill="white", font=badge_font)
+    # ❌ [삭제 완료] 대표님 요청에 따라 상단 파란 뱃지와 하단 @주소 레이저 제설 완료!
 
-    # ✂️ [줄바꿈 최적화] 가로 폭이 좁아진 만큼, 12자 기준으로 더 찰지게 끊어지도록 설계!
+    # ✂️ 글자 줄바꿈 최적화 (가로 폭에 맞춰 12자 기준 분할)
     words = title_text.split(' ')
     lines, curr = [], []
     for w in words:
@@ -135,13 +132,13 @@ def create_and_upload_thumbnail(title_text):
             lines.append(' '.join(curr[:-1]))
             curr = [w]
     lines.append(' '.join(curr))
-    # 정방형 공간 특성상 최대 3줄까지 이쁘게 수용 가능
     if len(lines) > 3: lines = [lines[0], lines[1], lines[2] + "..."]
     formatted_title = '\n'.join(lines)
 
-    # 본문 제목 및 푸터 워터마크 정밀 고정
-    draw.multiline_text((60, 180), formatted_title, fill="#f8fafc", font=title_font, spacing=22)
-    draw.text((60, 710), "© tip.gwangchoon.com", fill="#64748b", font=badge_font)
+    # 🎯 [초정밀 정가운데 정렬] 
+    # anchor="mm" (가로/세로 정중앙 자석 고정) 및 align="center" (행간 중앙 정렬) 배치!
+    # 800x800의 정확한 센터 좌표인 (400, 400) 지점에 글자를 완벽하게 꽂아 넣습니다.
+    draw.multiline_text((400, 400), formatted_title, fill="#f8fafc", font=title_font, spacing=26, anchor="mm", align="center")
 
     file_name = f"thumb_{int(time.time())}.webp"
     img.save(file_name, "WEBP", quality=82)
@@ -162,7 +159,7 @@ def create_and_upload_thumbnail(title_text):
     
     res_put = requests.put(url, headers=headers, json=payload)
     if res_put.status_code in [200, 201]:
-        print(f"🎨 1:1 정방형 썸네일 간판 깃허브 업로드 성공! ({file_name})")
+        print(f"🎨 정가운데 정렬 썸네일 간판 깃허브 업로드 성공! ({file_name})")
         return f"https://cdn.jsdelivr.net/gh/{GITHUB_USER_ID}/{GITHUB_REPO_NAME}@main/{git_path}"
     else:
         print(f"❌ [썸네일 업로드 실패] 코드: {res_put.status_code}, 사유: {res_put.text}")
