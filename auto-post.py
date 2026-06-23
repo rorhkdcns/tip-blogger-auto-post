@@ -56,7 +56,7 @@ GOOGLE_ADSENSE_CLIENT = "ca-pub-***********917157" # 대표님 애드센스 계�
 GOOGLE_ADSENSE_SLOT = "53***********49"
 
 GITHUB_USER_ID = "rorhkdcns"  
-GITHUB_REPO_NAME = "blogger-auto-post"  
+GITHUB_REPO_NAME = "tip-blogger-auto-post"  
 
 # 💡 구글이 검열하지 않는 안전한 'IT/생활 트러블슈팅' 씨앗 키워드 덱
 IT_LIFE_SEEDS = [
