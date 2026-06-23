@@ -52,8 +52,8 @@ import requests
 BLOG_ID = "4906024564279839597"  # <생활 단축키> tip.gwangchoon.com 고유 ID
 FIREBASE_URL = "https://your-project-id-default-rtdb.firebaseio.com/" # 파이어베이스 주소 (추후 입력 가능)
 
-GOOGLE_ADSENSE_CLIENT = "ca-pub-***********917157" # 대표님 애드센스 계정 유지
-GOOGLE_ADSENSE_SLOT = "53***********49"
+GOOGLE_ADSENSE_CLIENT = "ca-pub-4292478378917157" # 대표님 애드센스 계정 유지
+GOOGLE_ADSENSE_SLOT = "7988651325"
 
 GITHUB_USER_ID = "rorhkdcns"  
 GITHUB_REPO_NAME = "tip-blogger-auto-post"  
