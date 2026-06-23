@@ -12,7 +12,7 @@ import time
 import urllib.parse
 import urllib.request
 
-# [1단계] 라이브러리 자동 설치 및 검증 (Pillow, requests 탑재 완료)
+# [1단계] 라이브러리 자동 설치 및 검증
 required_modules = [
     "google-auth-oauthlib", 
     "google-auth-httplib2", 
@@ -46,23 +46,51 @@ from PIL import Image, ImageDraw, ImageFont
 import requests
 
 # =====================================================================
-# ⚙️ 고유 설정 정보 (2호기 심장 ID 완벽 각인)
+# ⚙️ 고유 설정 정보 (대표님 맞춤형 인프라 각인)
 # =====================================================================
-BLOG_ID = "4906024564279839597"  # <생활 단축키> tip.gwangchoon.com 고유 ID
-FIREBASE_URL = "https://tip-blog-d03f8-default-rtdb.asia-southeast1.firebasedatabase.app/" # 파이어베이스 주소 (추후 입력 가능)
+BLOG_ID = "4906024564279839597"  # <생활 단축키> 고유 ID
+# 💡 [구조 분리] 파이어베이스 메인 주소 뒤에 /life/ 폴더를 붙여 장부가 완벽히 분리됩니다!
+FIREBASE_URL = "https://tip-blog-d03f8-default-rtdb.asia-southeast1.firebasedatabase.app/life/"
 
-GOOGLE_ADSENSE_CLIENT = "ca-pub-4292478378917157" # 대표님 애드센스 계정 유지
-GOOGLE_ADSENSE_SLOT = "7988651325"
+GOOGLE_ADSENSE_CLIENT = "ca-pub-**********7157" # 대표님 애드센스 정보 유지
+GOOGLE_ADSENSE_SLOT = "798***********325"
 
 GITHUB_USER_ID = "rorhkdcns"  
 GITHUB_REPO_NAME = "tip-blogger-auto-post"  
 
-# 💡 구글이 검열하지 않는 안전한 'IT/생활 트러블슈팅' 씨앗 키워드 덱
+# 🔋 [초대형 씨앗 탱크] 1년 무중단 가동용 고밀도 IT 트러블슈팅 키워드 120선
 IT_LIFE_SEEDS = [
-    "아이폰 카카오톡", "갤럭시 배터리", "윈도우11 속도", "엑셀 단축키", "유튜브 프리미엄",
-    "넷플릭스 화질", "인스타그램 스토리", "구글 크롬 메모리", "PDF 용량 줄이기", "카톡 백업",
-    "에어팟 연결 끊김", "아이패드 필기앱", "노트북 발열", "모니터 주사율", "와이파이 느릴때",
-    "애플워치 방수", "티빙 동시접속", "쿠팡플레이 에러", "아이폰 화면 어두워짐", "엑셀 오류"
+    # 1. 스마트폰 & SNS 오류 코어 덱
+    "아이폰 카카오톡", "갤럭시 배터리", "인스타그램 스토리", "카톡 백업", "에어팟 연결 끊김",
+    "아이패드 필기앱", "아이폰 화면 어두워짐", "카톡 글씨체", "아이폰 폰트", "카톡 단톡방 나가지기",
+    "카톡 용량 줄이기", "아이폰 단축어", "아이폰 핫스팟 연결", "갤럭시 캡처 방법", "카카오페이 송금취소",
+    "아이폰 사진 컴퓨터로", "갤럭시 사진 옮기기", "아이폰 무한사과", "에어팟 한쪽 소리", "버즈 연결 끊김",
+    "카톡 캘린더 삭제", "아이폰 키보드 천지인", "인스타 계정 삭제", "인스타 비활성화", "페이스북 탈퇴",
+    "갤럭시 안전모드", "아이폰 텍스트 대치", "카톡 생일 안뜨게", "아이폰 화면 녹화", "갤럭시 화면 녹화",
+    "카톡 사진 고화질", "에어팟 프로 노이즈캔슬링", "갤럭시 듀얼메신저", "카톡 알림음 변경", "인스타 해킹 확인",
+    "카톡 멀티프로필 확인", "네이버 앱 캐시삭제", "아이폰 에어드롭 안됨", "갤럭시 퀵쉐어 오류", "카톡 오픈프로필 삭제",
+    
+    # 2. PC & 브라우저 & 윈도우 에러 해결 덱
+    "윈도우11 속도", "구글 크롬 메모리", "노트북 발열", "모니터 주사율", "와이파이 느릴때",
+    "네이버 인증서", "구글 드라이브 공유", "지메일 수신확인", "알약 광고 제거", "윈도우 캡처 단축키",
+    "윈도우 디펜더 끄기", "크롬 팝업 차단 해제", "프린터 오프라인", "공공와이파이 보안", "아이패드 미러링",
+    "윈도우11 초기화", "맥북 한영전환", "구글 검색기록 삭제", "디스코드 마이크 안됨", "크롬 쿠키 삭제",
+    "알약 삭제 오류", "윈도우 블루스크린", "공유기 비밀번호 초기화", "노트북 블루투스 사라짐", "윈도우 파일 영구삭제",
+    "구글 계정 탈퇴", "노트북 터치패드 잠금", "윈도우 작업관리자 단축키", "구글 포토 백업 끄기", "윈도우 포맷 방법",
+    "웨일 브라우저 다크모드", "윈도우 마우스 멈춤", "맥북 단축키 모음", "노트북 정전기 방전", "윈도우 업데이트 무한로딩",
+    "크롬 느려질 때", "윈도우 비트락커 해제", "공인인증서 복사", "공동인증서 발급", "윈도우11 사양 확인",
+    
+    # 3. 업무 & 오피스 프로그램 생산성 덱
+    "엑셀 단축키", "PDF 용량 줄이기", "엑셀 오류", "엑셀 파일 깨짐", "한글 파일 pdf 변환",
+    "엑셀 vlookup 함수", "엑셀 드롭다운 만들기", "엑셀 시트 보호 해제", "피디에프 글자 수정", "엑셀 행고정",
+    "피피티 글꼴 포함", "한글 자음 모음 분리", "워드 글자수 세기", "엑셀 중복값 제거", "노션 템플릿 복사",
+    
+    # 4. 스트리밍 & 여가 & 대중 트래픽 덱
+    "유튜브 프리미엄", "넷플릭스 화질", "애플워치 방수", "티빙 동시접속", "쿠팡플레이 에러",
+    "유튜브 음원 추출", "당근마켓 동네인증", "배달의민족 오류", "에어컨 제습 냉방", "스마트티비 연결",
+    "스마트싱스 오류", "트위터 계정 찾기", "애플아이디 잠김", "갤럭시 무한부팅", "유튜브 시청기록 중지",
+    "유튜브 알고리즘 초기화", "네이버 플러스 멤버십 해지", "네이버 메일 발송취소", "줌 마이크 소리", "유튜브 자막 끄기",
+    "아이폰 통화녹음 방법", "갤럭시 통화자동녹음", "구글 플레이스토어 다운로드 대기", "아이폰 아이클라우드 백업", "멜론 이용권 해지"
 ]
 
 ADSENSE_CODE = """
@@ -73,7 +101,6 @@ ADSENSE_CODE = """
 </div>
 """.replace("{CLIENT}", GOOGLE_ADSENSE_CLIENT).replace("{SLOT}", GOOGLE_ADSENSE_SLOT)
 
-# 기존 주식 계산기 모음판을 대체하는 'IT 트러블슈팅 자가진단표' (레이어 풍부함 유지용)
 IT_CHECKLIST_CODE = """
 <div class="calc-board-container" style="margin: 35px 0; padding: 22px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
     <p style="margin: 0 0 14px 0; font-size: 15px; font-weight: 700; color: #1e293b; border-left: 4px solid #2563eb; padding-left: 10px;">🛠️ 기기 및 프로그램 먹통 시 3대 자가점검표</p>
@@ -96,7 +123,7 @@ CTA_CODE = """
 """
 
 # =====================================================================
-# 🎨 썸네일 간판 실시간 렌더링 및 깃허브 REST API 푸시 모듈
+# 🎨 [정교한 1:1 정가운데 정렬] 미니멀리즘 썸네일 생성 모듈
 # =====================================================================
 def create_and_upload_thumbnail(title_text):
     gh_token = os.environ.get("GITHUB_TOKEN")
@@ -104,26 +131,22 @@ def create_and_upload_thumbnail(title_text):
         print("⚠️ GITHUB_TOKEN이 감지되지 않아 썸네일 원격 전송을 생략합니다. (텍스트 전용 모드 가동)")
         return ""
 
-    # 한글 깨짐 방지용 폰트 자동 다운로드
     font_url = "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Bold.ttf"
     font_path = "NanumGothic-Bold.ttf"
     if not os.path.exists(font_path):
         try: urllib.request.urlretrieve(font_url, font_path)
         except: pass
 
-    # 📐 800x800 정방형 도화지 준비
+    # 📐 스마트폰 최적화 800x800 정방형 도화지 세팅
     img = Image.new('RGB', (800, 800), color='#0f172a')
     draw = ImageDraw.Draw(img)
     
     try:
-        # 🔎 [디자인 업그레이드] 제목이 화면에 시원하게 꽉 차도록 폰트 크기를 58로 대폭 키웁니다!
-        title_font = ImageFont.truetype(font_path, 58)
+        title_font = ImageFont.truetype(font_path, 58) # 가시성 폭발하는 58 규격 고정
     except:
         title_font = ImageFont.load_default()
 
-    # ❌ [삭제 완료] 대표님 요청에 따라 상단 파란 뱃지와 하단 @주소 레이저 제설 완료!
-
-    # ✂️ 글자 줄바꿈 최적화 (가로 폭에 맞춰 12자 기준 분할)
+    # ✂️ 글자 줄바꿈 알고리즘 (가로폭에 맞춰 12자 기준 분할)
     words = title_text.split(' ')
     lines, curr = [], []
     for w in words:
@@ -135,9 +158,7 @@ def create_and_upload_thumbnail(title_text):
     if len(lines) > 3: lines = [lines[0], lines[1], lines[2] + "..."]
     formatted_title = '\n'.join(lines)
 
-    # 🎯 [초정밀 정가운데 정렬] 
-    # anchor="mm" (가로/세로 정중앙 자석 고정) 및 align="center" (행간 중앙 정렬) 배치!
-    # 800x800의 정확한 센터 좌표인 (400, 400) 지점에 글자를 완벽하게 꽂아 넣습니다.
+    # 🎯 [정가운데 꽉 찬 자석 정렬] 상하좌우 불필요 요소를 다 지우고 글자만 정중앙 고정!
     draw.multiline_text((400, 400), formatted_title, fill="#f8fafc", font=title_font, spacing=26, anchor="mm", align="center")
 
     file_name = f"thumb_{int(time.time())}.webp"
@@ -159,7 +180,7 @@ def create_and_upload_thumbnail(title_text):
     
     res_put = requests.put(url, headers=headers, json=payload)
     if res_put.status_code in [200, 201]:
-        print(f"🎨 정가운데 정렬 썸네일 간판 깃허브 업로드 성공! ({file_name})")
+        print(f"🎨 정가운데 미니멀 썸네일 깃허브 업로드 성공! ({file_name})")
         return f"https://cdn.jsdelivr.net/gh/{GITHUB_USER_ID}/{GITHUB_REPO_NAME}@main/{git_path}"
     else:
         print(f"❌ [썸네일 업로드 실패] 코드: {res_put.status_code}, 사유: {res_put.text}")
@@ -167,7 +188,7 @@ def create_and_upload_thumbnail(title_text):
     return ""
 
 # =====================================================================
-# 🌐 파이어베이스 무중단 중복검사 및 구글 자동완성 수집 모듈
+# 🌐 파이어베이스 중복검사 및 구글 자동완성 수집 모듈
 # =====================================================================
 def get_google_suggest(seed_word):
     url = f"http://suggestqueries.google.com/complete/search?client=chrome&q={urllib.parse.quote(seed_word)}"
@@ -194,7 +215,7 @@ def get_unique_life_keyword():
     random.shuffle(IT_LIFE_SEEDS)
     for seed in IT_LIFE_SEEDS:
         suggestions = get_google_suggest(seed)
-        for kw in reversed(suggestions): # 구체적 롱테일(배열 뒤쪽)부터 추출
+        for kw in reversed(suggestions):
             if not check_and_save_firebase(kw): return kw
     fallback = random.choice(IT_LIFE_SEEDS) + f" 오류 해결법 {random.randint(1,99)}"
     check_and_save_firebase(fallback)
@@ -239,8 +260,8 @@ def generate_blog_content(target_keyword):
         f"[{target_keyword}] 오류를 해결하기 위해 검색한 사용자의 시간을 10분의 1로 단축해주는 실전 매뉴얼을 작성해줘.\n\n"
         "[필수 작성 지침]\n"
         "1. [제목]: 직관적인 에러 증상과 '~~하는 법', '~~해결 방법' 형태의 명쾌한 가치를 담아라.\n"
-        "2. [모바일 최적화]: 문장은 25자 내외로 짧게 끊고, 불필요한 접속사(또한, 반면에 등)는 100% 삭제하라. 첫 문장에 독자의 답답함에 1초 만에 공감한 뒤 곧바로 해결 스텝을 제시하라.\n"
-        "3. [본문 전개]: 해결 순서는 글머리기호(-, 1. 2.)를 쓰고, 원인 분석이나 설정값 비교는 반드시 마크다운 표(|구분|내용|)로 포맷팅하라.\n"
+        "2. [모바일 최적화]: 문장은 25자 내외로 짧게 끊고, 불필요한 접속사는 100% 삭제하라. 첫 문장에 독자의 답답함에 공감한 뒤 곧바로 해결 스텝을 제시하라.\n"
+        "3. [본문 전개]: 해결 순서는 글머리기호를 쓰고, 원인 분석이나 설정값 비교는 반드시 마크다운 표(|구분|내용|)로 포맷팅하라.\n"
         "4. [재발 방지 팁]: 마지막 3번 소제목 하단에는 '수석 엔지니어가 짚어주는 재발 방지 꿀팁' 문단을 반드시 넣어라.\n"
         "5. [금지어]: '파소나', 'PASONA', '카피라이팅', 'AI', '인공지능', '자동화', '프로그램'.\n\n"
         "반드시 아래의 JSON 규격에 맞춰서 작성하고, JSON 데이터 외에 다른 설명 텍스트나 마크다운 문법은 일절 출력하지 마라.\n"
@@ -287,7 +308,7 @@ def main():
     kst = datetime.timezone(datetime.timedelta(hours=9))
     b64_token = os.environ.get("TOKEN_PICKLE_BASE64")
     if not b64_token: 
-        print("🚨 [🚨비상] GITHUB Secrets에 'TOKEN_PICKLE_BASE64' 열쇠가 등록되지 않았습니다! 메인을 종료합니다.")
+        print("🚨 [🚨비상] GITHUB Secrets에 열쇠가 없습니다.")
         return
         
     blogger = build('blogger', 'v3', credentials=pickle.loads(base64.b64decode(b64_token)))
@@ -298,12 +319,11 @@ def main():
     
     try:
         posts = blogger.posts().list(blogId=BLOG_ID, maxResults=1).execute()
-      # ✅ 변경 코드 ('return' 앞에 #을 붙여서 락을 일시 무력화!)
         if posts.get('items'):
             last_pub_time = datetime.datetime.fromisoformat(posts['items'][0].get('published', '').replace('Z', '+00:00')).astimezone(kst)
             if (datetime.datetime.now(kst) - last_pub_time).total_seconds() < 3600:
                 print("⏳ 1시간 이내 연속 발행 방지 락 작동 중.")
-                return   # 🌟 앞에 샵(#)을 붙여서 이 줄을 그냥 주석(메모)처리 합니다!
+                return # 🟢 [안전 가드 복구 완료] 정식 자동 가동을 위해 1시간 락을 정상 가동합니다!
     except: pass
     
     target_keyword = get_unique_life_keyword()
@@ -311,7 +331,6 @@ def main():
 
     ai_json_response = generate_blog_content(target_keyword)
     try:
-        # ★[수정 완료] 줄바꿈 에러 유발하던 replace 구문 정갈하게 한 줄로 봉합 완료!
         clean_json = ai_json_response.replace('```json', '').replace('```', '').strip()
         data = json.loads(clean_json)
     except Exception as e:
@@ -326,7 +345,6 @@ def main():
 
     if len(body1) < 15 or len(body2) < 15: raise ValueError("🚨 본문 실종 에러")
 
-    # 썸네일 간판 렌더링 및 깃허브 CDN 업로드
     thumbnail_cdn_url = create_and_upload_thumbnail(title)
     
     thumb_html = f'<div style="text-align:center; margin:20px 0;"><img src="{thumbnail_cdn_url}" alt="{title}" style="max-width:100%; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);"/></div>' if thumbnail_cdn_url else ""
@@ -340,7 +358,7 @@ def main():
                  ADSENSE_CODE + CTA_CODE
 
     try:
-        # ★[수정 완료] 'published' 미래 예약 인자를 과감히 삭제하여 즉시 전광판에 꽂히도록 봉합!
+        # 구글 패치 우회 즉시 라이브 발행
         blogger.posts().insert(blogId=BLOG_ID, body={'title': title, 'content': final_html, 'labels': tags}, isDraft=False).execute()
         print(f"🚀 <생활 단축키> 2호기 규격화 포스팅 완벽 발행 성공! ({title})")
     except Exception as e:
