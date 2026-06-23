@@ -316,8 +316,7 @@ def main():
 
     ai_json_response = generate_blog_content(target_keyword)
     try:
-        clean_json = ai_json_response.replace('```json', '').replace('
-```', '').strip()
+        clean_json = ai_json_response.replace('```json', '').replace('```', '').strip()
         data = json.loads(clean_json)
     except Exception as e:
         raise ValueError(f"🚨 JSON 파싱 에러: {e}")
