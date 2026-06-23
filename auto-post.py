@@ -1,4 +1,3 @@
-
 import base64
 import datetime
 import html
@@ -52,8 +51,8 @@ import requests
 BLOG_ID = "4906024564279839597"  # <생활 단축키> tip.gwangchoon.com 고유 ID
 FIREBASE_URL = "https://your-project-id-default-rtdb.firebaseio.com/" # 파이어베이스 주소 (추후 입력 가능)
 
-GOOGLE_ADSENSE_CLIENT = "ca-pub-4292478378917157" # 대표님 애드센스 계정 유지
-GOOGLE_ADSENSE_SLOT = "7988651325"
+GOOGLE_ADSENSE_CLIENT = "ca-p**********7157" # 대표님 애드센스 계정 유지
+GOOGLE_ADSENSE_SLOT = "798***********325"
 
 GITHUB_USER_ID = "rorhkdcns"  
 GITHUB_REPO_NAME = "tip-blogger-auto-post"  
@@ -228,16 +227,6 @@ def format_paragraphs(text):
         processed_chunks.append("".join(table_html))
     return "".join(processed_chunks)
 
-def calculate_scheduled_time():
-    kst = datetime.timezone(datetime.timedelta(hours=9))
-    now = datetime.datetime.now(kst) + datetime.timedelta(minutes=5) 
-    today = now.date()
-    candidates = [datetime.datetime.combine(today, datetime.time(h, random.randint(1, 15)), tzinfo=kst) for h in [9, 11, 13, 15, 17, 19, 21]]
-    scheduled_time = next((c for c in candidates if c > now), None)
-    if not scheduled_time:
-        scheduled_time = datetime.datetime.combine(today + datetime.timedelta(days=1), datetime.time(9, random.randint(1, 15)), tzinfo=kst)
-    return scheduled_time.strftime('%Y-%m-%dT%H:%M:%S+09:00')
-
 def generate_blog_content(target_keyword):
     api_key_direct = os.environ.get("API_KEY")
     client = genai.Client(api_key=api_key_direct, http_options=types.HttpOptions(api_version="v1beta"))
@@ -294,7 +283,9 @@ def check_already_posted(blogger, blog_id):
 def main():
     kst = datetime.timezone(datetime.timedelta(hours=9))
     b64_token = os.environ.get("TOKEN_PICKLE_BASE64")
-    if not b64_token: return
+    if not b64_token: 
+        print("🚨 [🚨비상] GITHUB Secrets에 'TOKEN_PICKLE_BASE64' 열쇠가 등록되지 않았습니다! 메인을 종료합니다.")
+        return
         
     blogger = build('blogger', 'v3', credentials=pickle.loads(base64.b64decode(b64_token)))
     
@@ -316,6 +307,7 @@ def main():
 
     ai_json_response = generate_blog_content(target_keyword)
     try:
+        # ★[수정 완료] 줄바꿈 에러 유발하던 replace 구문 정갈하게 한 줄로 봉합 완료!
         clean_json = ai_json_response.replace('```json', '').replace('```', '').strip()
         data = json.loads(clean_json)
     except Exception as e:
@@ -333,7 +325,6 @@ def main():
     # 썸네일 간판 렌더링 및 깃허브 CDN 업로드
     thumbnail_cdn_url = create_and_upload_thumbnail(title)
     
-    # 조잡한 랜덤 스톡 사진 주입기 완전 제거 $\rightarrow$ 최상단 썸네일 1장 + 정갈한 퀵 요약 박스로 대체!
     thumb_html = f'<div style="text-align:center; margin:20px 0;"><img src="{thumbnail_cdn_url}" alt="{title}" style="max-width:100%; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);"/></div>' if thumbnail_cdn_url else ""
     gs_html = format_paragraphs(global_summary) if global_summary else ""
     quick_summary_box = f'<div style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 18px; margin: 25px 0; border-radius: 0 8px 8px 0;"><p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #2563eb;">⚡ QUICK TROUBLESHOOTING</p><div style="font-size: 14px; color: #334155;">{gs_html}</div></div>' if gs_html else ""
@@ -345,7 +336,8 @@ def main():
                  ADSENSE_CODE + CTA_CODE
 
     try:
-        blogger.posts().insert(blogId=BLOG_ID, body={'title': title, 'content': final_html, 'labels': tags, 'published': calculate_scheduled_time()}, isDraft=False).execute()
+        # ★[수정 완료] 'published' 미래 예약 인자를 과감히 삭제하여 즉시 전광판에 꽂히도록 봉합!
+        blogger.posts().insert(blogId=BLOG_ID, body={'title': title, 'content': final_html, 'labels': tags}, isDraft=False).execute()
         print(f"🚀 <생활 단축키> 2호기 규격화 포스팅 완벽 발행 성공! ({title})")
     except Exception as e:
         print(f"❌ 발행 에러: {e}")
