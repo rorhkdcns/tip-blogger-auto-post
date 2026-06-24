@@ -2,8 +2,10 @@ name: Life Shortcut Auto Bot
 
 on:
   schedule:
-    - cron: '0 */4 * * *'  # 4시간마다 찔러보기 (실제 발행은 파이썬 내부 1시간 락이 통제)
-  workflow_dispatch:      # ★수동 트리거 버튼(Run workflow)을 화면에 생성하는 마법의 코드!
+    # UTC 0시, 4시, 9시, 13시 가동
+    # 한국(KST) 기준: [오전 9시], [오후 1시], [오후 6시], [밤 10시] 피크타임 정밀 타격
+    - cron: '0 0,4,9,13 * * *'
+  workflow_dispatch: # ★수동 트리거 버튼(Run workflow)을 화면에 생성하는 마법의 코드!
 
 jobs:
   post:
