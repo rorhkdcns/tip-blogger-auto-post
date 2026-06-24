@@ -49,7 +49,6 @@ import requests
 # ⚙️ 고유 설정 정보 (대표님 맞춤형 인프라 각인)
 # =====================================================================
 BLOG_ID = "4906024564279839597"  # <생활 단축키> 고유 ID
-# 💡 [구조 분리] 파이어베이스 메인 주소 뒤에 /life/ 폴더를 붙여 장부가 완벽히 분리됩니다!
 FIREBASE_URL = "https://tip-blog-d03f8-default-rtdb.asia-southeast1.firebasedatabase.app/life/"
 
 GOOGLE_ADSENSE_CLIENT = "ca-pub-**********7157" # 대표님 애드센스 정보 유지
@@ -317,14 +316,7 @@ def main():
         print("🛑 오늘 일일 발행 한도(4개)에 도달하여 스킵합니다.")
         return
     
-    try:
-        posts = blogger.posts().list(blogId=BLOG_ID, maxResults=1).execute()
-        if posts.get('items'):
-            last_pub_time = datetime.datetime.fromisoformat(posts['items'][0].get('published', '').replace('Z', '+00:00')).astimezone(kst)
-            if (datetime.datetime.now(kst) - last_pub_time).total_seconds() < 3600:
-                print("⏳ 1시간 이내 연속 발행 방지 락 작동 중.")
-                return # 🟢 [안전 가드 복구 완료] 정식 자동 가동을 위해 1시간 락을 정상 가동합니다!
-    except: pass
+    # 🔓 [트래블슈팅 완료] 새로운 지정 스케줄 운영을 위해 구형 1시간 연속 발행 제한 가드 제거
     
     target_keyword = get_unique_life_keyword()
     print(f"🎯 [수집 완료] 오늘 요리할 타겟 키워드: '{target_keyword}'")
