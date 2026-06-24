@@ -51,8 +51,8 @@ import requests
 BLOG_ID = "4906024564279839597"
 FIREBASE_URL = "https://tip-blog-d03f8-default-rtdb.asia-southeast1.firebasedatabase.app/life/"
 
-GOOGLE_ADSENSE_CLIENT = "ca-pub-**********7157"
-GOOGLE_ADSENSE_SLOT = "798***********325"
+GOOGLE_ADSENSE_CLIENT = "ca-pub-4292478378917157"
+GOOGLE_ADSENSE_SLOT = "3408610580"
 
 GITHUB_USER_ID = "rorhkdcns"
 GITHUB_REPO_NAME = "tip-blogger-auto-post"
