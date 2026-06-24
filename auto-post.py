@@ -185,7 +185,7 @@ def create_and_upload_thumbnail(title_text):
     return ""
 
 # =====================================================================
-# 🌐 파이어베이스 중복검사 및 구글 자동완성 수집 모듈 (키 정제 로직 보강)
+# 🌐 파이어베이스 중복검사 및 구글 자동완성 수집 모듈
 # =====================================================================
 def get_google_suggest(seed_word):
     url = f"http://suggestqueries.google.com/complete/search?client=chrome&q={urllib.parse.quote(seed_word)}"
@@ -200,7 +200,6 @@ def check_and_save_firebase(keyword):
     if not FIREBASE_URL or "your-project-id" in FIREBASE_URL:
         return False
         
-    # Firebase Key 금지 특수문자 완벽 제거 (. # $ [ ] /)
     safe_kw = re.sub(r'[.#$\[\]/]', '_', keyword)
     url = f"{FIREBASE_URL}history/{urllib.parse.quote(safe_kw)}.json"
     
@@ -224,19 +223,18 @@ def get_unique_life_keyword():
     return fallback
 
 # =====================================================================
-# ✍️ 마크다운 표 포맷팅 및 AI 칼럼니스트 생성부 (수정 포인트)
+# ✍️ 마크다운 표 포맷팅 및 HTML 치환부 (수정 반영)
 # =====================================================================
 def format_paragraphs(text):
     if not text or not text.strip():
         return ""
+    
+    # [수정 로직] 본문 내 마크다운 볼드체(**)를 HTML 빨간색/볼드로 치환
+    text = re.sub(r'\*\*(.*?)\*\*', r'<strong style="color: #ef4444;">\1</strong>', text)
+    
     processed_chunks = []
     in_table = False
     table_html = []
-    
-    # [수정 로직] 본문 내 마크다운 볼드체(**)를 HTML 빨간색/볼드로 치환
-    # re.sub()를 사용하여 **텍스트**를 <strong style="color:#ef4444;">텍스트</strong>로 바꿉니다.
-    # #ef4444는 웹 가독성이 좋은 빨간색 코드입니다.
-    text = re.sub(r'\*\*(.*?)\*\*', r'<strong style="color: #ef4444;">\1</strong>', text)
     
     for line in text.split('\n'):
         line = line.strip()
@@ -272,16 +270,18 @@ def generate_blog_content(target_keyword):
 
     client = genai.Client(api_key=api_key_direct, http_options=types.HttpOptions(api_version="v1beta"))
     
+    # [수정 로직] '수석' 단어 제거 및 볼드체 사용 지침 추가
     prompt = (
-        "너는 10년 차 수석 IT 시스템 엔지니어이자 '생활 단축키' 전문 칼럼니스트야. "
+        "너는 10년 차 IT 시스템 엔지니어이자 '생활 단축키' 전문 칼럼니스트야. "
         f"[{target_keyword}] 오류를 해결하기 위해 검색한 사용자의 시간을 10분의 1로 단축해주는 실전 매뉴얼을 작성해줘.\n\n"
         "[필수 작성 지침]\n"
         "1. [제목]: 직관적인 에러 증상과 '~하는 법', '~해결 방법' 형태의 명쾌한 가치를 담아라.\n"
         "2. [모바일 최적화]: 문장은 25자 내외로 짧게 끊고 접속사는 삭제하라. 첫 문장에 독자의 답답함에 공감한 뒤 곧바로 해결 스텝을 제시하라.\n"
         "3. [본문 전개]: 해결 순서는 글머리기호를 쓰고, 원인 분석이나 설정값 비교는 반드시 마크다운 표(|구분|내용|)로 포맷팅하라.\n"
-        "4. [재발 방지 팁]: 마지막 3번 소제목 하단에는 '수석 엔지니어가 짚어주는 재발 방지 꿀팁' 문단을 반드시 넣어라.\n"
+        "4. [재발 방지 팁]: 마지막 3번 소제목 하단에는 '엔지니어가 짚어주는 재발 방지 꿀팁' 문단을 반드시 넣어라.\n"
         "5. [금지어]: '파소나', 'PASONA', '카피라이팅', 'AI', '인공지능', '자동화', '프로그램'.\n"
-        "6. [JSON 문법 엄수]: 본문(body) 내용 작성 시 큰따옴표(\")나 제어문자(\\n, \\t)를 날것으로 쓰지 말고, 따옴표가 필요하면 반드시 작은따옴표(')만 써라.\n\n"
+        "6. [JSON 문법 엄수]: 본문(body) 내용 작성 시 큰따옴표(\")나 제어문자(\\n, \\t)를 날것으로 쓰지 말고, 따옴표가 필요하면 반드시 작은따옴표(')만 써라.\n"
+        "7. [핵심 단어 강조]: 각 해결 단계나 내용 중 가장 중요한 키워드나 수치는 반드시 마크다운 볼드체(**강조할 단어**)로 감싸서 작성하라.\n\n"
         "반드시 아래의 JSON 규격에 맞춰서 작성하고, 마크다운 문법(```json)이나 기타 설명 텍스트는 일절 출력하지 마라.\n"
         "{\n"
         '  "title": "증상과 해결책이 명확한 제목",\n'
@@ -291,7 +291,7 @@ def generate_blog_content(target_keyword):
         '  "body_1": "1단계 본문 내용",\n'
         '  "sub_title_2": "2. 근본적인 에러 발생 원인",\n'
         '  "body_2": "2단계 본문 내용 (원인 분석용 마크다운 표 반드시 삽입)",\n'
-        '  "sub_title_3": "3. 수석 엔지니어의 재발 방지 팁",\n'
+        '  "sub_title_3": "3. 엔지니어의 재발 방지 팁",\n'
         '  "body_3": "3단계 본문 내용"\n'
         "}"
     )
@@ -312,7 +312,7 @@ def generate_blog_content(target_keyword):
     raise RuntimeError("🚨 제미나이 원고 데이터 생성 최종 실패")
 
 # =====================================================================
-# ⏰ 시차(UTC vs KST) 완벽 대응 일일 발행량 체크 (수정 완료)
+# ⏰ 시차(UTC vs KST) 완벽 대응 일일 발행량 체크
 # =====================================================================
 def check_already_posted(blogger, blog_id):
     kst = datetime.timezone(datetime.timedelta(hours=9))
@@ -325,7 +325,6 @@ def check_already_posted(blogger, blog_id):
             pub_str = item.get('published', '')
             if not pub_str:
                 continue
-            # 구글 API의 UTC ISO 스트링('...Z' or '+00:00')을 KST 날짜 객체로 정확히 치환
             if pub_str.endswith('Z'):
                 pub_str = pub_str[:-1] + '+00:00'
             try:
@@ -371,7 +370,6 @@ def main():
     raw_json_text = generate_blog_content(target_keyword)
     
     try:
-        # LLM이 제멋대로 붙이는 마크다운 코드블록 찌꺼기 3중 정제
         clean_json = re.sub(r'^```json\s*', '', raw_json_text, flags=re.MULTILINE).replace('```', '').strip()
         data = json.loads(clean_json)
     except json.JSONDecodeError as e:
@@ -396,7 +394,9 @@ def main():
     
     thumb_html = f'<div style="text-align:center; margin:20px 0;"><img src="{thumbnail_cdn_url}" alt="{title}" style="max-width:100%; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);"/></div>' if thumbnail_cdn_url else ""
     gs_html = format_paragraphs(global_summary) if global_summary else ""
-    quick_summary_box = f'<div style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 18px; margin: 25px 0; border-radius: 0 8px 8px 0;"><p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #2563eb;">⚡ QUICK TROUBLESHOOTING</p><div style="font-size: 14px; color: #334155;">{gs_html}</div></div>' if gs_html else ""
+    
+    # [수정 로직] ⚡ QUICK TROUBLESHOOTING -> 💡 1분 문제 해결법
+    quick_summary_box = f'<div style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 18px; margin: 25px 0; border-radius: 0 8px 8px 0;"><p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #2563eb;">💡 1분 문제 해결법</p><div style="font-size: 14px; color: #334155;">{gs_html}</div></div>' if gs_html else ""
 
     final_html = thumb_html + quick_summary_box + ADSENSE_CODE + \
                  f'<h3 style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px;">{sub1}</h3>{format_paragraphs(body1)}' + IT_CHECKLIST_CODE + \
