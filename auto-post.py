@@ -224,7 +224,7 @@ def get_unique_life_keyword():
     return fallback
 
 # =====================================================================
-# ✍️ 마크다운 표 포맷팅 및 AI 칼럼니스트 생성부
+# ✍️ 마크다운 표 포맷팅 및 AI 칼럼니스트 생성부 (수정 포인트)
 # =====================================================================
 def format_paragraphs(text):
     if not text or not text.strip():
@@ -232,6 +232,12 @@ def format_paragraphs(text):
     processed_chunks = []
     in_table = False
     table_html = []
+    
+    # [수정 로직] 본문 내 마크다운 볼드체(**)를 HTML 빨간색/볼드로 치환
+    # re.sub()를 사용하여 **텍스트**를 <strong style="color:#ef4444;">텍스트</strong>로 바꿉니다.
+    # #ef4444는 웹 가독성이 좋은 빨간색 코드입니다.
+    text = re.sub(r'\*\*(.*?)\*\*', r'<strong style="color: #ef4444;">\1</strong>', text)
+    
     for line in text.split('\n'):
         line = line.strip()
         if not line:
