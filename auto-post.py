@@ -11,6 +11,10 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+import warnings
+
+# [추가] 보기 싫은 구글 API 파이썬 버전 경고문 강제 차단
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 # =====================================================================
 # [1단계] 정밀한 라이브러리 1:1 자동 설치 및 검증 (수정 완료)
@@ -229,7 +233,6 @@ def format_paragraphs(text):
     if not text or not text.strip():
         return ""
     
-    # [수정 로직] 본문 내 마크다운 볼드체(**)를 HTML 빨간색/볼드로 치환
     text = re.sub(r'\*\*(.*?)\*\*', r'<strong style="color: #ef4444;">\1</strong>', text)
     
     processed_chunks = []
@@ -244,7 +247,6 @@ def format_paragraphs(text):
             if not in_table:
                 in_table = True
                 table_html = ['<div style="overflow-x:auto; margin: 25px 0;"><table style="width:100%; border-collapse:collapse; border:1px solid #cbd5e1;">']
-            # 구분선(|---|) 행은 렌더링 스킵
             if re.match(r'^\|(?:[\s\-:]+\|)+$', line):
                 continue
                 
@@ -270,7 +272,6 @@ def generate_blog_content(target_keyword):
 
     client = genai.Client(api_key=api_key_direct, http_options=types.HttpOptions(api_version="v1beta"))
     
-    # [수정 로직] 슬러그 생성 지침 8번 추가 반영
     prompt = (
         "너는 10년 차 IT 시스템 엔지니어이자 '생활 단축키' 전문 칼럼니스트야. "
         f"[{target_keyword}] 오류를 해결하기 위해 검색한 사용자의 시간을 10분의 1로 단축해주는 실전 매뉴얼을 작성해줘.\n\n"
@@ -282,7 +283,7 @@ def generate_blog_content(target_keyword):
         "5. [금지어]: '파소나', 'PASONA', '카피라이팅', 'AI', '인공지능', '자동화', '프로그램'.\n"
         "6. [JSON 문법 엄수]: 본문(body) 내용 작성 시 큰따옴표(\")나 제어문자(\\n, \\t)를 날것으로 쓰지 말고, 따옴표가 필요하면 반드시 작은따옴표(')만 써라.\n"
         "7. [핵심 단어 강조]: 각 해결 단계나 내용 중 가장 중요한 키워드나 수치는 반드시 마크다운 볼드체(**강조할 단어**)로 감싸서 작성하라.\n"
-        "8. https://toollab.kr/ko/%EC%8A%AC%EB%9F%AC%EA%B7%B8-%EC%83%9D%EC%84%B1%EA%B8%B0/: 이 글의 웹 주소(URL)로 쓸 소문자 영어 단어 2~3개를 하이픈(-)으로 연결하여 'slug' 값에 작성하라. (예: 'iphone-kakaotalk-error')\n\n"
+        "8. [URL 슬러그 생성]: 이 글의 웹 주소(URL)로 쓸 소문자 영어 단어 2~3개를 하이픈(-)으로 연결하여 'slug' 값에 작성하라. (예: 'iphone-kakaotalk-error')\n\n"
         "반드시 아래의 JSON 규격에 맞춰서 작성하고, 마크다운 문법(```json)이나 기타 설명 텍스트는 일절 출력하지 마라.\n"
         "{\n"
         '  "title": "증상과 해결책이 명확한 제목",\n'
@@ -388,7 +389,6 @@ def main():
     sub3, body3 = data.get("sub_title_3", "3. 재발 방지 팁"), data.get("body_3", "")
     global_summary = data.get("global_summary", "")
 
-    # [추가] AI가 생성한 슬러그 추출 및 특수문자 방어 로직
     raw_slug = data.get("slug", "it-troubleshooting-guide").lower()
     slug = re.sub(r'[^a-z0-9\-]', '', raw_slug).strip('-')
     if not slug:
@@ -403,7 +403,6 @@ def main():
     thumb_html = f'<div style="text-align:center; margin:20px 0;"><img src="{thumbnail_cdn_url}" alt="{title}" style="max-width:100%; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);"/></div>' if thumbnail_cdn_url else ""
     gs_html = format_paragraphs(global_summary) if global_summary else ""
     
-    # [수정 로직] ⚡ QUICK TROUBLESHOOTING -> 💡 1분 문제 해결법
     quick_summary_box = f'<div style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 18px; margin: 25px 0; border-radius: 0 8px 8px 0;"><p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #2563eb;">💡 1분 문제 해결법</p><div style="font-size: 14px; color: #334155;">{gs_html}</div></div>' if gs_html else ""
 
     final_html = thumb_html + quick_summary_box + ADSENSE_CODE + \
@@ -412,7 +411,7 @@ def main():
                  f'<h3 style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px;">{sub3}</h3>{format_paragraphs(body3)}' + \
                  ADSENSE_CODE + CTA_CODE
 
-    # [수정 로직] 영어 슬러그 LIVE 선(先)발행 후 1.5초 뒤 한글 제목 덮어쓰기
+    # [핵심 수정부] 2연타 패치 시 '본문(content)'과 '라벨(labels)'을 똑같이 묶어 재전송
     try:
         print(f"🔗 [1단계] 영어 퍼머링크 생성 중... (Target URL: /{slug}.html)")
         res_insert = blogger.posts().insert(
@@ -423,14 +422,17 @@ def main():
         
         created_post_id = res_insert.get('id')
         
-        # 구글 서버 DB 인덱싱 안전 대기
         time.sleep(1.5)
         
-        print(f"✍️ [2단계] 한글 정식 제목으로 교체 중... ('{title}')")
+        print(f"✍️ [2단계] 한글 정식 제목으로 덮어쓰기 중... ('{title}')")
         blogger.posts().patch(
             blogId=BLOG_ID, 
             postId=created_post_id, 
-            body={'title': title}
+            body={
+                'title': title,
+                'content': final_html, # 구글 서버가 본문을 날리지 못하게 강제 고정
+                'labels': tags
+            }
         ).execute()
 
         print(f"🚀 <생활 단축키> 규격화 포스팅 완벽 발행 성공! ({title})")
