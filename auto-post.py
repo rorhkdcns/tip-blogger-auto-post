@@ -265,6 +265,55 @@ def format_paragraphs(text):
         processed_chunks.append("".join(table_html))
     return "".join(processed_chunks)
 
+# [신규] 목차(TOC) 박스
+def build_toc_html(sub1, sub2, sub3):
+    return f'''
+<div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:20px 24px; margin:25px 0;">
+    <p style="font-weight:700; font-size:15px; color:#1e293b; margin:0 0 12px 0;">📋 목차</p>
+    <ul style="margin:0; padding-left:20px; font-size:14px; color:#334155; line-height:2;">
+        <li><a href="#sec1" style="color:#2563eb; text-decoration:none;">{sub1}</a></li>
+        <li><a href="#sec2" style="color:#2563eb; text-decoration:none;">{sub2}</a></li>
+        <li><a href="#sec3" style="color:#2563eb; text-decoration:none;">{sub3}</a></li>
+        <li><a href="#faq" style="color:#2563eb; text-decoration:none;">자주 묻는 질문</a></li>
+        <li><a href="#conclusion" style="color:#2563eb; text-decoration:none;">결론</a></li>
+    </ul>
+</div>
+'''
+
+# [신규] 섹션별 "✅ 요약" 박스
+def make_section_summary(text):
+    if not text or not text.strip(): return ""
+    return f'''
+<div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:14px 18px; margin:15px 0 30px 0;">
+    <p style="margin:0; font-size:14px; color:#1e3a8a; font-weight:700;">✅ 요약</p>
+    <p style="margin:6px 0 0 0; font-size:14px; color:#334155; line-height:1.6;">{text}</p>
+</div>
+'''
+
+# [신규] FAQ 섹션
+def build_faq_html(faq_list):
+    if not faq_list: return ""
+    items = ""
+    for item in faq_list:
+        q = (item.get("question") or "").strip()
+        a = (item.get("answer") or "").strip()
+        if not q or not a: continue
+        items += f'''
+        <div style="margin-bottom:18px;">
+            <p style="font-weight:700; font-size:15px; color:#1e293b; margin:0 0 6px 0;">Q. {q}</p>
+            <p style="font-size:14px; color:#475569; line-height:1.7; margin:0;">A. {a}</p>
+        </div>'''
+    if not items: return ""
+    return f'''
+<h3 id="faq" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:40px;">❓ 자주 묻는 질문</h3>
+<div style="margin-top:20px;">{items}</div>
+'''
+
+# [신규] 결론 섹션
+def build_conclusion_html(conclusion_text):
+    if not conclusion_text or not conclusion_text.strip(): return ""
+    return f'<h3 id="conclusion" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:40px;">🏁 결론</h3>{format_paragraphs(conclusion_text)}'
+
 def generate_blog_content(target_keyword):
     api_key_direct = os.environ.get("API_KEY")
     if not api_key_direct:
@@ -280,10 +329,13 @@ def generate_blog_content(target_keyword):
         "2. [모바일 최적화]: 문장은 25자 내외로 짧게 끊고 접속사는 삭제하라. 첫 문장에 독자의 답답함에 공감한 뒤 곧바로 해결 스텝을 제시하라.\n"
         "3. [본문 전개]: 해결 순서는 글머리기호를 쓰고, 원인 분석이나 설정값 비교는 반드시 마크다운 표(|구분|내용|)로 포맷팅하라.\n"
         "4. [재발 방지 팁]: 마지막 3번 소제목 하단에는 '엔지니어가 짚어주는 재발 방지 꿀팁' 문단을 반드시 넣어라.\n"
-        "5. [금지어]: '파소나', 'PASONA', '카피라이팅', 'AI', '인공지능', '자동화', '프로그램'.\n"
-        "6. [JSON 문법 엄수]: 본문(body) 내용 작성 시 큰따옴표(\")나 제어문자(\\n, \\t)를 날것으로 쓰지 말고, 따옴표가 필요하면 반드시 작은따옴표(')만 써라.\n"
-        "7. [핵심 단어 강조]: 각 해결 단계나 내용 중 가장 중요한 키워드나 수치는 반드시 마크다운 볼드체(**강조할 단어**)로 감싸서 작성하라.\n"
-        "8. [URL 슬러그 생성]: 이 글의 웹 주소(URL)로 쓸 소문자 영어 단어 2~3개를 하이픈(-)으로 연결하여 'slug' 값에 작성하라. (예: 'iphone-kakaotalk-error')\n\n"
+        "5. [섹션별 요약]: summary_1, summary_2, summary_3에는 각 섹션 내용을 2줄(60~80자)로 압축한 핵심 요약을 작성하라. 본문을 그대로 반복하지 말고 결론만 짚어라.\n"
+        "6. [FAQ]: faq 항목에는 이 오류/증상에 대해 독자들이 실제로 궁금해할 만한 질문 4개와 답변(2~3문장)을 작성하라.\n"
+        "7. [결론]: conclusion 항목에는 전체 내용을 마무리하는 문단(200~300자)을 작성하라. 핵심 포인트 재확인 + 실천 조언으로 끝내라.\n"
+        "8. [금지어]: '파소나', 'PASONA', '카피라이팅', 'AI', '인공지능', '자동화', '프로그램'.\n"
+        "9. [JSON 문법 엄수]: 본문(body) 내용 작성 시 큰따옴표(\")나 제어문자(\\n, \\t)를 날것으로 쓰지 말고, 따옴표가 필요하면 반드시 작은따옴표(')만 써라.\n"
+        "10. [핵심 단어 강조]: 각 해결 단계나 내용 중 가장 중요한 키워드나 수치는 반드시 마크다운 볼드체(**강조할 단어**)로 감싸서 작성하라.\n"
+        "11. [URL 슬러그 생성]: 이 글의 웹 주소(URL)로 쓸 소문자 영어 단어 2~3개를 하이픈(-)으로 연결하여 'slug' 값에 작성하라. (예: 'iphone-kakaotalk-error')\n\n"
         "반드시 아래의 JSON 규격에 맞춰서 작성하고, 마크다운 문법(```json)이나 기타 설명 텍스트는 일절 출력하지 마라.\n"
         "{\n"
         '  "title": "증상과 해결책이 명확한 제목",\n'
@@ -292,10 +344,20 @@ def generate_blog_content(target_keyword):
         '  "tags": ["IT꿀팁", "오류해결", "생활단축키"],\n'
         '  "sub_title_1": "1. 가장 빠른 증상 해결 스텝",\n'
         '  "body_1": "1단계 본문 내용",\n'
+        '  "summary_1": "1단계 핵심 요약 2줄",\n'
         '  "sub_title_2": "2. 근본적인 에러 발생 원인",\n'
         '  "body_2": "2단계 본문 내용 (원인 분석용 마크다운 표 반드시 삽입)",\n'
+        '  "summary_2": "2단계 핵심 요약 2줄",\n'
         '  "sub_title_3": "3. 엔지니어의 재발 방지 팁",\n'
-        '  "body_3": "3단계 본문 내용"\n'
+        '  "body_3": "3단계 본문 내용",\n'
+        '  "summary_3": "3단계 핵심 요약 2줄",\n'
+        '  "faq": [\n'
+        '    {"question": "질문1", "answer": "답변1"},\n'
+        '    {"question": "질문2", "answer": "답변2"},\n'
+        '    {"question": "질문3", "answer": "답변3"},\n'
+        '    {"question": "질문4", "answer": "답변4"}\n'
+        '  ],\n'
+        '  "conclusion": "전체 내용을 마무리하는 결론 문단"\n'
         "}"
     )
     
@@ -385,9 +447,14 @@ def main():
     title = data.get("title", f"{target_keyword} 완벽 해결법")
     tags = data.get("tags", ["IT꿀팁", "오류해결", "생활단축키"])
     sub1, body1 = data.get("sub_title_1", "1. 핵심 해결 스텝"), data.get("body_1", "")
+    summary_1 = data.get("summary_1", "")
     sub2, body2 = data.get("sub_title_2", "2. 원인 분석"), data.get("body_2", "")
+    summary_2 = data.get("summary_2", "")
     sub3, body3 = data.get("sub_title_3", "3. 재발 방지 팁"), data.get("body_3", "")
+    summary_3 = data.get("summary_3", "")
     global_summary = data.get("global_summary", "")
+    faq_list = data.get("faq", [])
+    conclusion = data.get("conclusion", "")
 
     raw_slug = data.get("slug", "it-troubleshooting-guide").lower()
     slug = re.sub(r'[^a-z0-9\-]', '', raw_slug).strip('-')
@@ -405,11 +472,15 @@ def main():
     
     quick_summary_box = f'<div style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 18px; margin: 25px 0; border-radius: 0 8px 8px 0;"><p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #2563eb;">💡 1분 문제 해결법</p><div style="font-size: 14px; color: #334155;">{gs_html}</div></div>' if gs_html else ""
 
-    final_html = thumb_html + quick_summary_box + ADSENSE_CODE + \
-                 f'<h3 style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px;">{sub1}</h3>{format_paragraphs(body1)}' + IT_CHECKLIST_CODE + \
-                 f'<h3 style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px;">{sub2}</h3>{format_paragraphs(body2)}' + ADSENSE_CODE + \
-                 f'<h3 style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px;">{sub3}</h3>{format_paragraphs(body3)}' + \
-                 ADSENSE_CODE + CTA_CODE
+    toc_html = build_toc_html(sub1, sub2, sub3)
+    faq_html = build_faq_html(faq_list)
+    conclusion_html = build_conclusion_html(conclusion)
+
+    final_html = thumb_html + toc_html + quick_summary_box + ADSENSE_CODE + \
+                 f'<h3 id="sec1" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px;">{sub1}</h3>{format_paragraphs(body1)}{make_section_summary(summary_1)}' + IT_CHECKLIST_CODE + \
+                 f'<h3 id="sec2" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px;">{sub2}</h3>{format_paragraphs(body2)}{make_section_summary(summary_2)}' + ADSENSE_CODE + \
+                 f'<h3 id="sec3" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px;">{sub3}</h3>{format_paragraphs(body3)}{make_section_summary(summary_3)}' + \
+                 faq_html + ADSENSE_CODE + conclusion_html + CTA_CODE
 
     # [핵심 수정부] 2연타 패치 시 '본문(content)'과 '라벨(labels)'을 똑같이 묶어 재전송
     try:
