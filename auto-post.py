@@ -98,8 +98,8 @@ ADSENSE_CODE = f"""
 
 IT_CHECKLIST_CODE = """
 <div class="calc-board-container" style="margin: 35px 0; padding: 22px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-    <p style="margin: 0 0 14px 0; font-size: 15px; font-weight: 700; color: #1e293b; border-left: 4px solid #2563eb; padding-left: 10px;">🛠️ 기기 및 프로그램 먹통 시 3대 자가점검표</p>
-    <div style="font-size: 14px; color: #475569; line-height: 1.8;">
+    <p style="margin: 0 0 14px 0; font-size: 17px; font-weight: 700; color: #1e293b; border-left: 4px solid #2563eb; padding-left: 10px;">🛠️ 기기 및 프로그램 먹통 시 3대 자가점검표</p>
+    <div style="font-size: 16px; color: #475569; line-height: 1.8;">
         1. <b>백그라운드 충돌:</b> 실행 중인 모든 앱 완전 종료 후 재시도<br>
         2. <b>네트워크 캐시:</b> 비행기 모드 10초 활성화 후 해제<br>
         3. <b>임시 파일 꼬임:</b> 기기 전원 끄기 후 2분 정지, 재부팅
@@ -109,8 +109,8 @@ IT_CHECKLIST_CODE = """
 
 CTA_CODE = """
 <div class="cta-box" style="border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; background-color: #f8fafc; margin-top: 40px; text-align: center;">
-    <p style="font-size: 15px; color: #2563eb; font-weight: 700; margin-bottom: 8px;">⚡ 생활 단축키 공식 매뉴얼 안내</p>
-    <p style="font-size: 14px; color: #475569; line-height: 1.7; margin: 0;">
+    <p style="font-size: 17px; color: #2563eb; font-weight: 700; margin-bottom: 8px;">⚡ 생활 단축키 공식 매뉴얼 안내</p>
+    <p style="font-size: 16px; color: #475569; line-height: 1.7; margin: 0;">
         IT 기기나 소프트웨어 오류는 공식 규격에 맞춘 스텝별 초기화가 가장 안전하고 빠릅니다.<br>
         위 솔루션을 순서대로 적용해 보신 후, 해결되지 않는 복합 증상은 하단의 재발 방지 권장 세팅을 유지해 주시기 바랍니다.
     </p>
@@ -118,7 +118,7 @@ CTA_CODE = """
 """
 
 # =====================================================================
-# 🎨 썸네일 생성 모듈
+# 🎨 썸네일 생성 모듈 (큰 글씨 버전)
 # =====================================================================
 def create_and_upload_thumbnail(title_text):
     gh_token = os.environ.get("GITHUB_TOKEN")
@@ -138,15 +138,16 @@ def create_and_upload_thumbnail(title_text):
     draw = ImageDraw.Draw(img)
     
     try:
-        title_font = ImageFont.truetype(font_path, 58)
+        title_font = ImageFont.truetype(font_path, 80)  # 58 → 80
     except:
         title_font = ImageFont.load_default()
 
+    # 글씨가 커진 만큼 줄바꿈 기준 글자수를 12 → 8로 축소
     words = title_text.split(' ')
     lines, curr = [], []
     for w in words:
         curr.append(w)
-        if len(' '.join(curr)) > 12:
+        if len(' '.join(curr)) > 8:
             lines.append(' '.join(curr[:-1]))
             curr = [w]
     lines.append(' '.join(curr))
@@ -154,7 +155,7 @@ def create_and_upload_thumbnail(title_text):
         lines = [lines[0], lines[1], lines[2] + "..."]
     formatted_title = '\n'.join(lines)
 
-    draw.multiline_text((400, 400), formatted_title, fill="#f8fafc", font=title_font, spacing=26, anchor="mm", align="center")
+    draw.multiline_text((400, 400), formatted_title, fill="#f8fafc", font=title_font, spacing=34, anchor="mm", align="center")
 
     file_name = f"thumb_{int(time.time())}.webp"
     img.save(file_name, "WEBP", quality=82)
@@ -227,7 +228,7 @@ def get_unique_life_keyword():
     return fallback
 
 # =====================================================================
-# ✍️ 마크다운 표 포맷팅 및 HTML 치환부 (수정 반영)
+# ✍️ 마크다운 표 포맷팅 및 HTML 치환부 (폰트 확대 반영)
 # =====================================================================
 def format_paragraphs(text):
     if not text or not text.strip():
@@ -250,7 +251,7 @@ def format_paragraphs(text):
             if re.match(r'^\|(?:[\s\-:]+\|)+$', line):
                 continue
                 
-            tds = ''.join([f'<td style="border:1px solid #cbd5e1; padding:12px; font-size:14px;">{c.strip()}</td>' for c in line.split('|')[1:-1]])
+            tds = ''.join([f'<td style="border:1px solid #cbd5e1; padding:12px; font-size:16px;">{c.strip()}</td>' for c in line.split('|')[1:-1]])
             table_html.append(f'<tr>{tds}</tr>')
         else:
             if in_table:
@@ -258,7 +259,7 @@ def format_paragraphs(text):
                 table_html.append('</table></div>')
                 processed_chunks.append("".join(table_html))
                 table_html = []
-            processed_chunks.append(f'<p style="margin-bottom:20px; line-height:1.7; font-size:15px; color:#334155;">{line}</p>')
+            processed_chunks.append(f'<p style="margin-bottom:20px; line-height:1.7; font-size:17px; color:#334155;">{line}</p>')
             
     if in_table:
         table_html.append('</table></div>')
@@ -269,8 +270,8 @@ def format_paragraphs(text):
 def build_toc_html(sub1, sub2, sub3):
     return f'''
 <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:20px 24px; margin:25px 0;">
-    <p style="font-weight:700; font-size:15px; color:#1e293b; margin:0 0 12px 0;">📋 목차</p>
-    <ul style="margin:0; padding-left:20px; font-size:14px; color:#334155; line-height:2;">
+    <p style="font-weight:700; font-size:17px; color:#1e293b; margin:0 0 12px 0;">📋 목차</p>
+    <ul style="margin:0; padding-left:20px; font-size:16px; color:#334155; line-height:2;">
         <li><a href="#sec1" style="color:#2563eb; text-decoration:none;">{sub1}</a></li>
         <li><a href="#sec2" style="color:#2563eb; text-decoration:none;">{sub2}</a></li>
         <li><a href="#sec3" style="color:#2563eb; text-decoration:none;">{sub3}</a></li>
@@ -285,8 +286,8 @@ def make_section_summary(text):
     if not text or not text.strip(): return ""
     return f'''
 <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:14px 18px; margin:15px 0 30px 0;">
-    <p style="margin:0; font-size:14px; color:#1e3a8a; font-weight:700;">✅ 요약</p>
-    <p style="margin:6px 0 0 0; font-size:14px; color:#334155; line-height:1.6;">{text}</p>
+    <p style="margin:0; font-size:16px; color:#1e3a8a; font-weight:700;">✅ 요약</p>
+    <p style="margin:6px 0 0 0; font-size:16px; color:#334155; line-height:1.6;">{text}</p>
 </div>
 '''
 
@@ -300,19 +301,19 @@ def build_faq_html(faq_list):
         if not q or not a: continue
         items += f'''
         <div style="margin-bottom:18px;">
-            <p style="font-weight:700; font-size:15px; color:#1e293b; margin:0 0 6px 0;">Q. {q}</p>
-            <p style="font-size:14px; color:#475569; line-height:1.7; margin:0;">A. {a}</p>
+            <p style="font-weight:700; font-size:17px; color:#1e293b; margin:0 0 6px 0;">Q. {q}</p>
+            <p style="font-size:16px; color:#475569; line-height:1.7; margin:0;">A. {a}</p>
         </div>'''
     if not items: return ""
     return f'''
-<h3 id="faq" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:40px;">❓ 자주 묻는 질문</h3>
+<h3 id="faq" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:40px; font-size:20px;">❓ 자주 묻는 질문</h3>
 <div style="margin-top:20px;">{items}</div>
 '''
 
 # [신규] 결론 섹션
 def build_conclusion_html(conclusion_text):
     if not conclusion_text or not conclusion_text.strip(): return ""
-    return f'<h3 id="conclusion" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:40px;">🏁 결론</h3>{format_paragraphs(conclusion_text)}'
+    return f'<h3 id="conclusion" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:40px; font-size:20px;">🏁 결론</h3>{format_paragraphs(conclusion_text)}'
 
 def generate_blog_content(target_keyword):
     api_key_direct = os.environ.get("API_KEY")
@@ -470,16 +471,16 @@ def main():
     thumb_html = f'<div style="text-align:center; margin:20px 0;"><img src="{thumbnail_cdn_url}" alt="{title}" style="max-width:100%; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);"/></div>' if thumbnail_cdn_url else ""
     gs_html = format_paragraphs(global_summary) if global_summary else ""
     
-    quick_summary_box = f'<div style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 18px; margin: 25px 0; border-radius: 0 8px 8px 0;"><p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #2563eb;">💡 1분 문제 해결법</p><div style="font-size: 14px; color: #334155;">{gs_html}</div></div>' if gs_html else ""
+    quick_summary_box = f'<div style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 18px; margin: 25px 0; border-radius: 0 8px 8px 0;"><p style="margin: 0 0 8px 0; font-size: 15px; font-weight: 700; color: #2563eb;">💡 1분 문제 해결법</p><div style="font-size: 16px; color: #334155;">{gs_html}</div></div>' if gs_html else ""
 
     toc_html = build_toc_html(sub1, sub2, sub3)
     faq_html = build_faq_html(faq_list)
     conclusion_html = build_conclusion_html(conclusion)
 
     final_html = thumb_html + toc_html + quick_summary_box + ADSENSE_CODE + \
-                 f'<h3 id="sec1" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px;">{sub1}</h3>{format_paragraphs(body1)}{make_section_summary(summary_1)}' + IT_CHECKLIST_CODE + \
-                 f'<h3 id="sec2" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px;">{sub2}</h3>{format_paragraphs(body2)}{make_section_summary(summary_2)}' + ADSENSE_CODE + \
-                 f'<h3 id="sec3" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px;">{sub3}</h3>{format_paragraphs(body3)}{make_section_summary(summary_3)}' + \
+                 f'<h3 id="sec1" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px; font-size:20px;">{sub1}</h3>{format_paragraphs(body1)}{make_section_summary(summary_1)}' + IT_CHECKLIST_CODE + \
+                 f'<h3 id="sec2" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px; font-size:20px;">{sub2}</h3>{format_paragraphs(body2)}{make_section_summary(summary_2)}' + ADSENSE_CODE + \
+                 f'<h3 id="sec3" style="border-left:4px solid #2563eb; padding-left:10px; margin-top:30px; font-size:20px;">{sub3}</h3>{format_paragraphs(body3)}{make_section_summary(summary_3)}' + \
                  faq_html + ADSENSE_CODE + conclusion_html + CTA_CODE
 
     # [핵심 수정부] 2연타 패치 시 '본문(content)'과 '라벨(labels)'을 똑같이 묶어 재전송
